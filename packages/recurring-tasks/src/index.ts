@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { isEqual } from "lodash";
 
 dotenv.config();
 
@@ -8,13 +9,16 @@ import { extractMainTaskProperties, convertMainTaskToActiveTasks } from "./utils
 import {
   createActiveTask,
   updateActiveTask,
+  extractActiveTaskProperties,
   buildActiveTaskProperties,
   compareDates,
 } from "./utils/active-task";
 
 class TaskRecurrer {
-  private mainTaskUpdateDates: Record<string, Date> = {};
-  private existingActiveTasks: Record<string, ActiveTaskProperties[]> = {};
+  private existingTasks: Record<
+    string,
+    { mainTask: MainTaskProperties; activeTasks: ActiveTaskProperties[] }
+  > = {};
   private mainDatabase: string;
   private activeDatabase: string;
   public lock = false;
@@ -24,6 +28,26 @@ class TaskRecurrer {
       this.findDatabasesToUse();
     }
   }
+
+  resyncTasks = async (): Promise<void> => {
+    const activeTasks = await notion.databases.query({
+      database_id: this.activeDatabase,
+    });
+
+    const mainTasks = await notion.databases.query({
+      database_id: this.mainDatabase,
+    });
+
+    console.log("synced");
+    for (const main of mainTasks.results) {
+      this.existingTasks[main.id] = {
+        mainTask: extractMainTaskProperties(main),
+        activeTasks: activeTasks.results
+          .map((active) => extractActiveTaskProperties(active))
+          .filter(({ mainTask }) => mainTask === main.id),
+      };
+    }
+  };
 
   findDatabasesToUse = async (): Promise<void> => {
     const databases = await notion.search({
@@ -43,6 +67,8 @@ class TaskRecurrer {
       this.mainDatabase =
         this.mainDatabase || (title.some((object) => object.plain_text === "Main Tasks") ? id : "");
     }
+
+    await this.resyncTasks();
   };
 
   findTasksToUpdate = async () => {
@@ -51,13 +77,17 @@ class TaskRecurrer {
     });
 
     return tasks.results.filter((task) => {
-      const existingTask = this.mainTaskUpdateDates?.[task.id];
-      if (!existingTask) {
-        this.mainTaskUpdateDates[task.id] = new Date(task.last_edited_time);
-        this.existingActiveTasks[task.id] = [];
+      if (!this.existingTasks[task.id]?.mainTask) {
+        this.existingTasks[task.id] = {
+          mainTask: extractMainTaskProperties(task),
+          activeTasks: [],
+        };
         return true;
       }
-      return new Date(task.last_edited_time) > this.mainTaskUpdateDates[task.id];
+
+      // We use a deep equality to check for changes because last edit times from the
+      // Notion API are rounded to the nearest minute rather than exact time.
+      return !isEqual(task, this.existingTasks[task.id].mainTask);
     });
   };
 
@@ -72,7 +102,7 @@ class TaskRecurrer {
 
       const tasksToKeep = activeTasks
         .map((activeTask, index) => {
-          const match = this.existingActiveTasks[task.id].find((existing) =>
+          const match = this.existingTasks[task.id].activeTasks.find((existing) =>
             compareDates(activeTask, existing)
           );
           if (match) {
@@ -81,7 +111,7 @@ class TaskRecurrer {
         })
         .filter((task) => Boolean(task)) as { id: string; index: number; properties: any }[];
 
-      const tasksToUpdate = this.existingActiveTasks[task.id]
+      const tasksToUpdate = this.existingTasks[task.id].activeTasks
         .map((existing) => {
           const nonMatch = activeTasks.findIndex(
             (activeTask, index) =>
@@ -102,7 +132,7 @@ class TaskRecurrer {
         .filter((task) => Boolean(task)) as { id: string; index: number; properties: any }[];
 
       const tasksToCreate =
-        this.existingActiveTasks[task.id].length < activeTasks.length
+        this.existingTasks[task.id].activeTasks.length < activeTasks.length
           ? activeTasks.filter(
               (_, index) =>
                 tasksToKeep.every(({ index: taskIndex }) => index !== taskIndex) &&
@@ -111,8 +141,8 @@ class TaskRecurrer {
           : [];
 
       const tasksToDelete =
-        this.existingActiveTasks[task.id].length > activeTasks.length
-          ? this.existingActiveTasks[task.id].filter(
+        this.existingTasks[task.id].activeTasks.length > activeTasks.length
+          ? this.existingTasks[task.id].activeTasks.filter(
               (existing) =>
                 tasksToKeep.every(({ id }) => id !== existing.id) &&
                 tasksToUpdate.every(({ id }) => id !== existing.id)
@@ -130,7 +160,7 @@ class TaskRecurrer {
         }),
         ...tasksToUpdate.map(async ({ id, properties }) => await updateActiveTask(id, properties)),
         ...(tasksToKeep.map(async ({ id }) =>
-          this.existingActiveTasks[task.id].find((existing) => existing.id === id)
+          this.existingTasks[task.id].activeTasks.find((existing) => existing.id === id)
         ) as Promise<ActiveTaskProperties>[]),
       ];
 
@@ -142,9 +172,7 @@ class TaskRecurrer {
         ) as PromiseFulfilledResult<ActiveTaskProperties>[]
       ).map(({ value }) => value);
 
-      this.existingActiveTasks[task.id] = pages;
-
-      this.mainTaskUpdateDates[task.id] = new Date(task.last_edited_time);
+      this.existingTasks[task.id].activeTasks = pages;
     }
 
     this.lock = false;
