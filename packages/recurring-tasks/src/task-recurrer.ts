@@ -1,14 +1,15 @@
-import { isEqual } from "lodash";
-import { notion, deleteDatabasePage } from "./utils/notion";
 import { Database } from "@notionhq/client/build/src/api-types";
-import { extractMainTaskProperties, convertMainTaskToActiveTasks } from "./utils/main-task";
+import { isEqual } from "lodash";
+
 import {
-  createActiveTask,
-  updateActiveTask,
-  extractActiveTaskProperties,
   buildActiveTaskProperties,
   compareDates,
+  createActiveTask,
+  extractActiveTaskProperties,
+  updateActiveTask,
 } from "./utils/active-task";
+import { convertMainTaskToActiveTasks, extractMainTaskProperties } from "./utils/main-task";
+import { deleteDatabasePage, notion } from "./utils/notion";
 
 export default class TaskRecurrer {
   private existingTasks: Record<
