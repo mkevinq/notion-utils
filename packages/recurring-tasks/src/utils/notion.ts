@@ -1,8 +1,8 @@
 import { Client } from "@notionhq/client";
 import {
   InputPropertyValueMap,
-  PagesUpdateResponse,
   PagesCreateResponse,
+  PagesUpdateResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 
 export const notion = new Client({
