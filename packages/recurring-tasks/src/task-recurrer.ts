@@ -1,4 +1,4 @@
-import { Database } from "@notionhq/client/build/src/api-types";
+import { Database, Page } from "@notionhq/client/build/src/api-types";
 import { isEqual } from "lodash";
 
 import {
@@ -68,7 +68,7 @@ export default class TaskRecurrer {
     await this.resyncTasks();
   };
 
-  findTasksToUpdate = async () => {
+  findTasksToUpdate = async (): Promise<Page[]> => {
     const tasks = await notion.databases.query({
       database_id: this.mainDatabase,
     });
