@@ -4,9 +4,11 @@ dotenv.config();
 
 import TaskRecurrer from "./task-recurrer";
 
-const app = new TaskRecurrer();
-
 (async () => {
+  const app = new TaskRecurrer();
+
+  await app.initialize();
+
   setInterval(() => {
     if (!app.lock) {
       app.updateTasks();

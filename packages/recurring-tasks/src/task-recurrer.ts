@@ -20,11 +20,12 @@ export default class TaskRecurrer {
   private activeDatabase: string;
   public lock = false;
 
-  constructor() {
+  initialize = async (): Promise<void> => {
     if (!this.mainDatabase || !this.activeDatabase) {
-      this.findDatabasesToUse();
+      await this.findDatabasesToUse();
     }
-  }
+    await this.resyncTasks();
+  };
 
   resyncTasks = async (): Promise<void> => {
     const activeTasks = await notion.databases.query({
@@ -35,7 +36,6 @@ export default class TaskRecurrer {
       database_id: this.mainDatabase,
     });
 
-    console.log("synced");
     for (const main of mainTasks.results) {
       this.existingTasks[main.id] = {
         mainTask: extractMainTaskProperties(main),
