@@ -1,7 +1,18 @@
 import { RichTextBase } from "@notionhq/client/build/src/api-types";
 
+import { CreateActiveTaskProperties, MainTaskProperties } from "../types";
+
 import { getCrons, getOccurrences } from "./cron";
 
+/**
+ * Creates a list of active tasks based on the properties of the given "main task".
+ * The generated list depends on:
+ * - The period in which the task occurs in.
+ * - How often the task occurs according to the "occurrence cron".
+ *
+ * @param {MainTaskProperties} properties - The properties of the "main task".
+ * @returns {CreateActiveTaskProperties[]} The properties of the recurring "active tasks".
+ */
 export const convertMainTaskToActiveTasks = (
   properties: MainTaskProperties
 ): CreateActiveTaskProperties[] => {
@@ -44,6 +55,13 @@ export const convertMainTaskToActiveTasks = (
   return [{ mainTask: id, name, time, status: "Not Started" }];
 };
 
+/**
+ * Converts the raw page data of the "main task" from the Notion API into a
+ * cleaner, usuable object.
+ *
+ * @param {any} task - The raw page data of the "main task" from the Notion API.
+ * @returns {MainTaskProperties} An object containing the properties of the "main task".
+ */
 export const extractMainTaskProperties = (task: any): MainTaskProperties => {
   const {
     id: task_id,

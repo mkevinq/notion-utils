@@ -1,8 +1,11 @@
-type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-type CreateActiveTaskProperties = Omit<Optional<ActiveTaskProperties, "status" | "time">, "id">;
+export type CreateActiveTaskProperties = Omit<
+  Optional<ActiveTaskProperties, "status" | "time">,
+  "id"
+>;
 
-interface ActiveTaskProperties {
+export interface ActiveTaskProperties {
   id: string;
   name: string;
   mainTask: string;
@@ -13,7 +16,7 @@ interface ActiveTaskProperties {
   end?: Date;
 }
 
-interface MainTaskProperties {
+export interface MainTaskProperties {
   id: string;
   name: string;
   time: boolean;

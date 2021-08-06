@@ -10,6 +10,7 @@
     "plugin:sonarjs/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
+    "plugin:jsdoc/recommended",
     "prettier"
   ],
   "parser": "@typescript-eslint/parser",
@@ -17,7 +18,7 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "unicorn", "sonarjs", "import"],
+  "plugins": ["@typescript-eslint", "unicorn", "sonarjs", "import", "jsdoc"],
   "rules": {
     "arrow-body-style": "error",
     "sort-imports": [
@@ -31,6 +32,16 @@
     ],
     "sonarjs/cognitive-complexity": "warn",
     "import/no-unresolved": "warn",
-    "import/order": ["error", { "newlines-between": "always", "alphabetize": { "order": "asc" } }]
+    "import/order": ["error", { "newlines-between": "always", "alphabetize": { "order": "asc" } }],
+    "jsdoc/require-jsdoc": [
+      "warn",
+      {
+        "require": {
+          "ArrowFunctionExpression": true,
+          "FunctionDeclaration": true,
+          "MethodDefinition": true
+        }
+      }
+    ]
   }
 }

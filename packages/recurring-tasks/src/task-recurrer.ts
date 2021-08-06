@@ -1,6 +1,7 @@
 import { Database, Page } from "@notionhq/client/build/src/api-types";
 import { isEqual } from "lodash";
 
+import { ActiveTaskProperties, MainTaskProperties } from "./types";
 import {
   buildActiveTaskProperties,
   compareDates,
@@ -20,6 +21,9 @@ export default class TaskRecurrer {
   private activeDatabase: string;
   public lock = false;
 
+  /**
+   * Find databases to read and write to, and synchronizes with the tasks in those databases.
+   */
   initialize = async (): Promise<void> => {
     if (!this.mainDatabase || !this.activeDatabase) {
       await this.findDatabasesToUse();
@@ -27,6 +31,10 @@ export default class TaskRecurrer {
     await this.resyncTasks();
   };
 
+  /**
+   * Fetches data for every "main task" and "active task", then re-associates "active tasks"
+   * to their respective "main task" in-memory.
+   */
   resyncTasks = async (): Promise<void> => {
     const activeTasks = await notion.databases.query({
       database_id: this.activeDatabase,
@@ -46,6 +54,9 @@ export default class TaskRecurrer {
     }
   };
 
+  /**
+   * Finds the IDs for the "main tasks" database and the "active tasks" database.
+   */
   findDatabasesToUse = async (): Promise<void> => {
     const databases = await notion.search({
       filter: {
@@ -64,10 +75,13 @@ export default class TaskRecurrer {
       this.mainDatabase =
         this.mainDatabase || (title.some((object) => object.plain_text === "Main Tasks") ? id : "");
     }
-
-    await this.resyncTasks();
   };
 
+  /**
+   * Finds a list of "main tasks" that have changed since the last read.
+   *
+   * @returns {Promise<Page[]>} A list of "main tasks".
+   */
   findTasksToUpdate = async (): Promise<Page[]> => {
     const tasks = await notion.databases.query({
       database_id: this.mainDatabase,
@@ -88,6 +102,9 @@ export default class TaskRecurrer {
     });
   };
 
+  /**
+   * Creates new "active tasks" for every "main task" that has been updated on Notion.
+   */
   updateTasks = async (): Promise<void> => {
     this.lock = true;
     const tasks = await this.findTasksToUpdate();
