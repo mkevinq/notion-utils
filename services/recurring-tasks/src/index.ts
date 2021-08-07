@@ -13,5 +13,5 @@ import TaskRecurrer from "./task-recurrer";
     if (!app.lock) {
       app.updateTasks();
     }
-  }, Number(process.env.INTERVAL) || 5000);
+  }, Number(process.env.INTERVAL) || 10_000);
 })();
