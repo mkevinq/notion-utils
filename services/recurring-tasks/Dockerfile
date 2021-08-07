@@ -2,10 +2,11 @@ FROM node:14
 
 WORKDIR /usr/src/app
 
-COPY package.json ./
+COPY ../../package.json ./
+COPY ../../yarn.lock ./
 RUN yarn install
 
 COPY . .
-RUN yarn build
+RUN yarn workspace @notion-utils/recurring-tasks build
 
-CMD ["yarn", "start"]
+CMD ["yarn", "workspace", "@notion-utils/recurring-tasks", "start"]
