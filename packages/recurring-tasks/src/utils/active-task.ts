@@ -4,7 +4,7 @@ import { createDatabasePage, updateDatabasePage } from "./notion";
 
 /**
  * Creates an "active task", and converts the API response to a clean object
- * containing the properties of the new "active task"
+ * containing the properties of the new "active task".
  *
  * @param {string} database - ID of the database to create the page in.
  * @param {any} properties - Notion API compliant object containing all the properties of the page to create.
@@ -22,9 +22,9 @@ export const createActiveTask = async (
  * Updates an "active task", and converts the API response to a clean object
  * containing the properties of the updated "active task".
  *
- * @param {string} id - Page ID of the "active task"
+ * @param {string} id - Page ID of the "active task".
  * @param {any} properties - Notion API compliant object containing page properties to update.
- * @returns {Promise<ActiveTaskProperties>} - Properties of the "active task"
+ * @returns {Promise<ActiveTaskProperties>} - Properties of the "active task".
  */
 export const updateActiveTask = async (
   id: string,
@@ -42,7 +42,7 @@ export const updateActiveTask = async (
  * @param {string} activeTask.mainTask - ID of the "main task" associated with this "active task".
  * @param {string} activeTask.name - Name of the "active task", coming from the name of the "main task".
  * @param {boolean} activeTask.time - Whether the "active task" uses a specific time in the start and end dates.
- * @param {string} activeTask.status - Progress of the task. (e.g. in progress or completed).
+ * @param {string} activeTask.status - Progress of the task. (e.g. In progress or completed).
  * @param {Date} activeTask.start - Start date of the "active task".
  * @param {Date} activeTask.end - End date of the "active task".
  * @returns {any} - Notion API compliant object containing the properties of the "active task".
