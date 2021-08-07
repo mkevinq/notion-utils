@@ -42,6 +42,11 @@
           "MethodDefinition": true
         }
       }
+    ],
+    "jsdoc/require-hyphen-before-param-description": [
+      "warn",
+      "always",
+      { "tags": { "*": "never", "returns": "always" } }
     ]
   }
 }

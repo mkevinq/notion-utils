@@ -4,7 +4,7 @@ import cron from "cron-parser";
  * Checks to see if the given string is a valid crontab.
  *
  * @param {string} cronString - Any string.
- * @returns {boolean} True if the string is a crontab, false otherwise.
+ * @returns {boolean} - True if the string is a crontab, false otherwise.
  */
 export const validateCron = (cronString: string): boolean => {
   try {
@@ -22,7 +22,7 @@ export const validateCron = (cronString: string): boolean => {
  * @param {Date} start - The start time of the recurring period.
  * @param {Date} end - The ending time of the recurring period.
  * @param {string} cronStrings - A list of crontabs.
- * @returns {Date[]} A list of dates.
+ * @returns {Date[]} - A list of dates.
  */
 export const getOccurrences = (start: Date, end: Date, cronStrings: string[]): Date[] => {
   const occurrences: Date[] = [];
@@ -50,7 +50,7 @@ export const getOccurrences = (start: Date, end: Date, cronStrings: string[]): D
  * then checking to see if each line is a valid crontab.
  *
  * @param {string} text - The text containing a list of crontabs.
- * @returns {string[]} A list of crontabs.
+ * @returns {string[]} - A list of crontabs.
  */
 export const getCrons = (text: string): string[] => {
   const unvalidatedCrons = text.split("\n").map((cron: string) => cron.trim());

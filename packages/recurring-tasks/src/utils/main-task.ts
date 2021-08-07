@@ -11,7 +11,7 @@ import { getCrons, getOccurrences } from "./cron";
  * - How often the task occurs according to the "occurrence cron".
  *
  * @param {MainTaskProperties} properties - The properties of the "main task".
- * @returns {CreateActiveTaskProperties[]} The properties of the recurring "active tasks".
+ * @returns {CreateActiveTaskProperties[]} - The properties of the recurring "active tasks".
  */
 export const convertMainTaskToActiveTasks = (
   properties: MainTaskProperties
@@ -60,7 +60,7 @@ export const convertMainTaskToActiveTasks = (
  * cleaner, usuable object.
  *
  * @param {any} task - The raw page data of the "main task" from the Notion API.
- * @returns {MainTaskProperties} An object containing the properties of the "main task".
+ * @returns {MainTaskProperties} - An object containing the properties of the "main task".
  */
 export const extractMainTaskProperties = (task: any): MainTaskProperties => {
   const {

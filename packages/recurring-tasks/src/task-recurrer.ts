@@ -80,7 +80,7 @@ export default class TaskRecurrer {
   /**
    * Finds a list of "main tasks" that have changed since the last read.
    *
-   * @returns {Promise<Page[]>} A list of "main tasks".
+   * @returns {Promise<Page[]>} - A list of "main tasks".
    */
   findTasksToUpdate = async (): Promise<Page[]> => {
     const tasks = await notion.databases.query({

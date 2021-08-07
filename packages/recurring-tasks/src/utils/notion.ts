@@ -14,7 +14,7 @@ export const notion = new Client({
  *
  * @param {string} database - The ID of the database to create the page in.
  * @param {InputPropertyValueMap} properties - Notion API compliant object containing all properties of the page.
- * @returns {Promise<PagesCreateResponse>} The page creation response from the Notion API.
+ * @returns {Promise<PagesCreateResponse>} - The page creation response from the Notion API.
  */
 export const createDatabasePage = (
   database: string,
@@ -32,7 +32,7 @@ export const createDatabasePage = (
  *
  * @param {string} page - The ID of the page to update.
  * @param {InputPropertyValueMap} properties - Notion API compliant object containing properties to update.
- * @returns {Promise<PagesUpdateResponse>} The page update response from the Notion API.
+ * @returns {Promise<PagesUpdateResponse>} - The page update response from the Notion API.
  */
 export const updateDatabasePage = (
   page: string,
@@ -48,7 +48,7 @@ export const updateDatabasePage = (
  * Calls the Notion API to archive a page in a database.
  *
  * @param {string} page - The ID of the page to archive.
- * @returns {Promise<PagesUpdateResponse>} The page update response from the Notion API.
+ * @returns {Promise<PagesUpdateResponse>} - The page update response from the Notion API.
  */
 export const deleteDatabasePage = (page: string): Promise<PagesUpdateResponse> =>
   notion.pages.update({
