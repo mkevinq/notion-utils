@@ -7,7 +7,7 @@
   "license": "GPL-3.0-only",
   "private": true,
   "workspaces": [
-    "packages/recurring-tasks"
+    "services/recurring-tasks"
   ],
   "scripts": {
     "build": "yarn workspaces run build",
