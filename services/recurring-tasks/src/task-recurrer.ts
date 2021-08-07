@@ -19,11 +19,24 @@ export default class TaskRecurrer {
   public lock = false;
 
   /**
-   * Find databases to read and write to, and synchronizes with the tasks in those databases.
+   * Find databases to read and write to, and pre-loads the "main tasks".
+   *
+   * Since we'll be pre-loading the "main tasks" on initialization, this will
+   * prevent tasks from being created / updated / deleted when the service
+   * starts. This means we're being optimistic and assuming that main tasks
+   * will not change during service downtime.
    */
   initialize = async (): Promise<void> => {
     if (!this.mainDatabase || !this.activeDatabase) {
       await this.findDatabasesToUse();
+    }
+
+    const tasks = await notion.databases.query({
+      database_id: this.mainDatabase,
+    });
+
+    for (const task of tasks.results) {
+      this.existingMainTasks[task.id] = extractMainTaskProperties(task);
     }
   };
 
