@@ -13,10 +13,7 @@ import { convertMainTaskToActiveTasks, extractMainTaskProperties } from "./utils
 import { deleteDatabasePage, notion } from "./utils/notion";
 
 export default class TaskRecurrer {
-  private existingTasks: Record<
-    string,
-    { mainTask: MainTaskProperties; activeTasks: ActiveTaskProperties[] }
-  > = {};
+  private existingMainTasks: Record<string, MainTaskProperties> = {};
   private mainDatabase: string;
   private activeDatabase: string;
   public lock = false;
@@ -27,30 +24,6 @@ export default class TaskRecurrer {
   initialize = async (): Promise<void> => {
     if (!this.mainDatabase || !this.activeDatabase) {
       await this.findDatabasesToUse();
-    }
-    await this.resyncTasks();
-  };
-
-  /**
-   * Fetches data for every "main task" and "active task", then re-associates "active tasks"
-   * to their respective "main task" in-memory.
-   */
-  resyncTasks = async (): Promise<void> => {
-    const activeTasks = await notion.databases.query({
-      database_id: this.activeDatabase,
-    });
-
-    const mainTasks = await notion.databases.query({
-      database_id: this.mainDatabase,
-    });
-
-    for (const main of mainTasks.results) {
-      this.existingTasks[main.id] = {
-        mainTask: extractMainTaskProperties(main),
-        activeTasks: activeTasks.results
-          .map((active) => extractActiveTaskProperties(active))
-          .filter(({ mainTask }) => mainTask === main.id),
-      };
     }
   };
 
@@ -88,22 +61,21 @@ export default class TaskRecurrer {
     });
 
     return tasks.results.filter((task) => {
-      if (!this.existingTasks[task.id]?.mainTask) {
-        this.existingTasks[task.id] = {
-          mainTask: extractMainTaskProperties(task),
-          activeTasks: [],
-        };
+      if (!this.existingMainTasks[task.id]) {
+        this.existingMainTasks[task.id] = extractMainTaskProperties(task);
         return true;
       }
 
       // We use a deep equality to check for changes because last edit times from the
       // Notion API are rounded to the nearest minute rather than exact time.
-      return !isEqual(task, this.existingTasks[task.id].mainTask);
+      return !isEqual(task, this.existingMainTasks[task.id]);
     });
   };
 
   /**
    * Creates new "active tasks" for every "main task" that has been updated on Notion.
+   *
+   * @todo Use pagination in the event that there are a lot of existing tasks.
    */
   updateTasks = async (): Promise<void> => {
     this.lock = true;
@@ -111,21 +83,33 @@ export default class TaskRecurrer {
 
     // immutability gang
     for (const task of tasks) {
+      // We're using the information from our Notion as our source of truth
+      // This prevents having to sync a ton of tasks when this service restarts
+      const existingTasks = (
+        await notion.databases.query({
+          database_id: this.activeDatabase,
+          filter: {
+            property: "Associated Task",
+            relation: {
+              contains: task.id,
+            },
+          },
+        })
+      ).results.map((result) => extractActiveTaskProperties(result));
+
       const properties = extractMainTaskProperties(task);
       const activeTasks = convertMainTaskToActiveTasks(properties);
 
       const tasksToKeep = activeTasks
         .map((activeTask, index) => {
-          const match = this.existingTasks[task.id].activeTasks.find((existing) =>
-            compareDates(activeTask, existing)
-          );
+          const match = existingTasks.find((existing) => compareDates(activeTask, existing));
           if (match) {
             return { id: match.id, index, properties: buildActiveTaskProperties(activeTask) };
           }
         })
         .filter((task) => Boolean(task)) as { id: string; index: number; properties: any }[];
 
-      const tasksToUpdate = this.existingTasks[task.id].activeTasks
+      const tasksToUpdate = existingTasks
         .map((existing) => {
           const nonMatch = activeTasks.findIndex(
             (activeTask, index) =>
@@ -146,7 +130,7 @@ export default class TaskRecurrer {
         .filter((task) => Boolean(task)) as { id: string; index: number; properties: any }[];
 
       const tasksToCreate =
-        this.existingTasks[task.id].activeTasks.length < activeTasks.length
+        existingTasks.length < activeTasks.length
           ? activeTasks.filter(
               (_, index) =>
                 tasksToKeep.every(({ index: taskIndex }) => index !== taskIndex) &&
@@ -155,8 +139,8 @@ export default class TaskRecurrer {
           : [];
 
       const tasksToDelete =
-        this.existingTasks[task.id].activeTasks.length > activeTasks.length
-          ? this.existingTasks[task.id].activeTasks.filter(
+        existingTasks.length > activeTasks.length
+          ? existingTasks.filter(
               (existing) =>
                 tasksToKeep.every(({ id }) => id !== existing.id) &&
                 tasksToUpdate.every(({ id }) => id !== existing.id)
@@ -167,26 +151,14 @@ export default class TaskRecurrer {
         deleteDatabasePage(existing.id);
       }
 
-      const promisedPages = [
-        ...tasksToCreate.map(async (activeTask) => {
-          const taskToCreate = buildActiveTaskProperties(activeTask);
-          return await createActiveTask(this.activeDatabase, taskToCreate);
-        }),
-        ...tasksToUpdate.map(async ({ id, properties }) => await updateActiveTask(id, properties)),
-        ...(tasksToKeep.map(async ({ id }) =>
-          this.existingTasks[task.id].activeTasks.find((existing) => existing.id === id)
-        ) as Promise<ActiveTaskProperties>[]),
-      ];
+      for (const activeTask of tasksToCreate) {
+        const taskToCreate = buildActiveTaskProperties(activeTask);
+        createActiveTask(this.activeDatabase, taskToCreate);
+      }
 
-      const settledPages = await Promise.allSettled(promisedPages);
-
-      const pages = (
-        settledPages.filter(
-          (page) => page.status === "fulfilled"
-        ) as PromiseFulfilledResult<ActiveTaskProperties>[]
-      ).map(({ value }) => value);
-
-      this.existingTasks[task.id].activeTasks = pages;
+      for (const { id, properties } of tasksToUpdate) {
+        updateActiveTask(id, properties);
+      }
     }
 
     this.lock = false;
