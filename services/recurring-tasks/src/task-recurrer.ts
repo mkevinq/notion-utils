@@ -68,7 +68,7 @@ export default class TaskRecurrer {
 
       // We use a deep equality to check for changes because last edit times from the
       // Notion API are rounded to the nearest minute rather than exact time.
-      return !isEqual(task, this.existingMainTasks[task.id]);
+      return !isEqual(extractMainTaskProperties(task), this.existingMainTasks[task.id]);
     });
   };
 
