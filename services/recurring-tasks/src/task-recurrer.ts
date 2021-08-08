@@ -80,9 +80,20 @@ export default class TaskRecurrer {
         return true;
       }
 
+      // We ignore changes to the list of associated "active tasks"
+      const existingProperties = {
+        ...this.existingMainTasks[task.id],
+        activeTasks: undefined,
+      };
+
+      const currentProperties = {
+        ...extractMainTaskProperties(task),
+        activeTasks: undefined,
+      };
+
       // We use a deep equality to check for changes because last edit times from the
       // Notion API are rounded to the nearest minute rather than exact time.
-      return !isEqual(extractMainTaskProperties(task), this.existingMainTasks[task.id]);
+      return !isEqual(existingProperties, currentProperties);
     });
   };
 
@@ -95,7 +106,6 @@ export default class TaskRecurrer {
     this.lock = true;
     const tasks = await this.findTasksToUpdate();
 
-    // immutability gang
     for (const task of tasks) {
       // We're using the information from our Notion as our source of truth
       // This prevents having to sync a ton of tasks when this service restarts
@@ -128,12 +138,12 @@ export default class TaskRecurrer {
           const nonMatch = activeTasks.findIndex(
             (activeTask, index) =>
               !compareDates(activeTask, existing) &&
-              tasksToKeep.some(({ index: taskIndex }) => taskIndex !== index)
+              tasksToKeep.every(({ index: taskIndex }) => taskIndex !== index)
           );
           const inTasksToKeep = tasksToKeep.find(({ id }) => existing.id === id);
 
           // Find an active task that has the doesn't same date as the existing one
-          if (nonMatch && !inTasksToKeep) {
+          if (nonMatch >= 0 && !inTasksToKeep) {
             return {
               id: existing.id,
               index: nonMatch,
@@ -173,6 +183,8 @@ export default class TaskRecurrer {
       for (const { id, properties } of tasksToUpdate) {
         updateActiveTask(id, properties);
       }
+
+      this.existingMainTasks[task.id] = extractMainTaskProperties(task);
     }
 
     this.lock = false;

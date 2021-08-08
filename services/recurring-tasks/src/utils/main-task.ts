@@ -89,10 +89,10 @@ export const extractMainTaskProperties = (task: any): MainTaskProperties => {
   } = task;
 
   const categories = categoryRelations
-    ? categoryRelations.map((relation: any) => relation.id)
+    ? categoryRelations.map((relation: any) => relation.id).sort()
     : undefined;
   const activeTasks = activeTaskRelations
-    ? activeTaskRelations.map((relation: any) => relation.id)
+    ? activeTaskRelations.map((relation: any) => relation.id).sort()
     : undefined;
 
   const occurrenceCrons = occurrenceCronsText.flatMap((textItem: RichTextBase) =>
