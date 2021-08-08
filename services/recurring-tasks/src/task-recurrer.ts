@@ -133,25 +133,33 @@ export default class TaskRecurrer {
         })
         .filter((task) => Boolean(task)) as { id: string; index: number; properties: any }[];
 
-      const tasksToUpdate = existingTasks
-        .map((existing) => {
+      // eslint-disable-next-line unicorn/no-array-reduce
+      const tasksToUpdate = existingTasks.reduce(
+        (accumulator: { id: string; index: number; properties: any }[], existing) => {
           const nonMatch = activeTasks.findIndex(
             (activeTask, index) =>
               !compareDates(activeTask, existing) &&
-              tasksToKeep.every(({ index: taskIndex }) => taskIndex !== index)
+              tasksToKeep.every(({ index: taskIndex }) => taskIndex !== index) &&
+              accumulator.every(({ index: taskIndex }) => taskIndex !== index)
           );
           const inTasksToKeep = tasksToKeep.find(({ id }) => existing.id === id);
 
           // Find an active task that has the doesn't same date as the existing one
           if (nonMatch >= 0 && !inTasksToKeep) {
-            return {
-              id: existing.id,
-              index: nonMatch,
-              properties: buildActiveTaskProperties(activeTasks[nonMatch]),
-            };
+            return [
+              ...accumulator,
+              {
+                id: existing.id,
+                index: nonMatch,
+                properties: buildActiveTaskProperties(activeTasks[nonMatch]),
+              },
+            ];
           }
-        })
-        .filter((task) => Boolean(task)) as { id: string; index: number; properties: any }[];
+
+          return accumulator;
+        },
+        []
+      );
 
       const tasksToCreate =
         existingTasks.length < activeTasks.length
