@@ -1,7 +1,7 @@
 import { Database, Page } from "@notionhq/client/build/src/api-types";
 import { isEqual } from "lodash";
 
-import { ActiveTaskProperties, MainTaskProperties } from "./types";
+import { MainTaskProperties } from "./types";
 import {
   buildActiveTaskProperties,
   compareDates,
