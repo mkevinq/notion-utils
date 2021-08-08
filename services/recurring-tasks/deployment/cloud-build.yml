@@ -11,6 +11,14 @@ steps:
       ]
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/$PROJECT_ID/recurring-tasks:$SHORT_SHA"]
+  - name: "bash"
+    args:
+      [
+        "sed",
+        "-i",
+        '"s#@IMAGE_NAME@#gcr.io/$PROJECT_ID/recurring-tasks:$SHORT_SHA"',
+        "services/recurring-tasks/deployment/kubernetes-resource.yml",
+      ]
   - name: "gcr.io/cloud-builders/gke-deploy"
     args:
       - run

@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: "recurring-tasks"
-          image: "recurring-tasks"
+          image: "@IMAGE_NAME@"
           env:
             - name: NOTION_TOKEN
               valueFrom:
