@@ -27,6 +27,7 @@ export default class TaskRecurrer {
    * will not change during service downtime.
    */
   initialize = async (): Promise<void> => {
+    console.log("Initializing service, using token:", process.env.NOTION_TOKEN);
     if (!this.mainDatabase || !this.activeDatabase) {
       await this.findDatabasesToUse();
     }
