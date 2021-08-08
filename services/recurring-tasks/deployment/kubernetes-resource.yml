@@ -17,8 +17,8 @@ spec:
         app: "recurring-tasks"
     spec:
       containers:
-        - name: "recurring-tasks-img"
-          image: "image"
+        - name: "recurring-tasks"
+          image: "gcr.io/notion-utils-322218/recurring-tasks"
           env:
             - name: NOTION_TOKEN
               valueFrom:

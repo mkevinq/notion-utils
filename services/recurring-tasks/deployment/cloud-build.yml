@@ -16,5 +16,5 @@ steps:
       - run
       - --filename=services/recurring-tasks/deployment/kubernetes-resource.yml
       - --image=gcr.io/$PROJECT_ID/recurring-tasks:$SHORT_SHA
-      - --location=location
-      - --cluster=cluster
+      - --location=us-central1-c
+      - --cluster=notion-utils-cluster
