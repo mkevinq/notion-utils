@@ -4,17 +4,17 @@ steps:
       [
         "build",
         "-t",
-        "recurring-tasks:$SHORT_SHA",
+        "gcr.io/$PROJECT_ID/recurring-tasks:$SHORT_SHA",
         "-f",
         "services/recurring-tasks/Dockerfile",
         ".",
       ]
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "recurring-tasks:$SHORT_SHA"]
+    args: ["push", "gcr.io/$PROJECT_ID/recurring-tasks:$SHORT_SHA"]
   - name: "gcr.io/cloud-builders/gke-deploy"
     args:
       - run
       - --filename=services/recurring-tasks/deployment/kubernetes-resource.yml
-      - --image=recurring-tasks:$SHORT_SHA
+      - --image=gcr.io/$PROJECT_ID/recurring-tasks:$SHORT_SHA
       - --location=us-central1-c
       - --cluster=notion-utils-cluster
