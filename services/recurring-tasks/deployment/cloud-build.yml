@@ -7,6 +7,7 @@ steps:
         "gcr.io/$PROJECT_ID/recurring-tasks:$SHORT_SHA",
         "-f",
         "services/recurring-tasks/Dockerfile",
+        ".",
       ]
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/$PROJECT_ID/recurring-tasks:$SHORT_SHA"]
