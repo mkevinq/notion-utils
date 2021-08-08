@@ -16,7 +16,7 @@ steps:
       [
         "sed",
         "-i",
-        '"s#@IMAGE_NAME@#gcr.io/$PROJECT_ID/recurring-tasks"',
+        "s#@IMAGE_NAME@#gcr.io/$PROJECT_ID/recurring-tasks",
         "services/recurring-tasks/deployment/kubernetes-resource.yml",
       ]
   - name: "gcr.io/cloud-builders/gke-deploy"
