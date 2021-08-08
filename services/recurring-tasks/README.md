@@ -46,7 +46,7 @@ Recurrence Period.
 Occurrence Crons defines when the task occurs. This should be clear if you
 know how to read a cron.
 
-Example: `30 17 * * 2` means that the task occurs every Monday at 5:30PM.
+Example: `30 17 * * 1` means that the task occurs every Monday at 5:30PM.
 
 Recurrence Period defines the period in which all the occurrences will fall
 under.
