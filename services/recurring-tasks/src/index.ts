@@ -11,7 +11,11 @@ import TaskRecurrer from "./task-recurrer";
 
   setInterval(() => {
     if (!app.lock) {
-      app.updateTasks();
+      try {
+        app.updateTasks();
+      } catch (error) {
+        console.log("Error occurred during an update:", error);
+      }
     }
   }, Number(process.env.INTERVAL) || 10_000);
 })();
