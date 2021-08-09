@@ -9,10 +9,10 @@ import TaskRecurrer from "./task-recurrer";
 
   await app.initialize();
 
-  setInterval(() => {
+  setInterval(async () => {
     if (!app.lock) {
       try {
-        app.updateTasks();
+        await app.updateTasks();
       } catch (error) {
         console.log("Error occurred during an update:", error);
       }
