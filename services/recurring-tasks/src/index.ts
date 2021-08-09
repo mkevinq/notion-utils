@@ -15,6 +15,7 @@ import TaskRecurrer from "./task-recurrer";
         await app.updateTasks();
       } catch (error) {
         console.log("Error occurred during an update:", error);
+        app.lock = false;
       }
     }
   }, Number(process.env.INTERVAL) || 10_000);
