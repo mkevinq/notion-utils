@@ -51,7 +51,6 @@ export const buildActiveTaskProperties = ({
   mainTask,
   name,
   time,
-  status,
   start,
   end,
 }: CreateActiveTaskProperties): any => {
@@ -94,11 +93,6 @@ export const buildActiveTaskProperties = ({
           id: mainTask,
         },
       ],
-    },
-    ["Status"]: {
-      select: {
-        name: status || "Not Started",
-      },
     },
     ...date,
   };
