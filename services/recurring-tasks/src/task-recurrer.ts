@@ -126,7 +126,9 @@ export default class TaskRecurrer {
 
       const tasksToKeep = activeTasks
         .map((activeTask, index) => {
-          const match = existingTasks.find((existing) => compareDates(activeTask, existing));
+          const match = existingTasks.find(
+            (existing) => compareDates(activeTask, existing) && activeTask.name === existing.name
+          );
           if (match) {
             return { id: match.id, index, properties: buildActiveTaskProperties(activeTask) };
           }
@@ -137,8 +139,7 @@ export default class TaskRecurrer {
       const tasksToUpdate = existingTasks.reduce(
         (accumulator: { id: string; index: number; properties: any }[], existing) => {
           const nonMatch = activeTasks.findIndex(
-            (activeTask, index) =>
-              !compareDates(activeTask, existing) &&
+            (_, index) =>
               tasksToKeep.every(({ index: taskIndex }) => taskIndex !== index) &&
               accumulator.every(({ index: taskIndex }) => taskIndex !== index)
           );
