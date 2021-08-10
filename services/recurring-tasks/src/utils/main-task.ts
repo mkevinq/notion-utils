@@ -52,7 +52,7 @@ export const convertMainTaskToActiveTasks = (
     ];
   }
 
-  return [{ mainTask: id, name, time, status: "Not Started" }];
+  return [{ mainTask: id, name, time }];
 };
 
 /**
@@ -82,15 +82,10 @@ export const extractMainTaskProperties = (task: any): MainTaskProperties => {
       ["Occurrence Crons"]: { rich_text: occurrenceCronsText } = { rich_text: undefined },
       ["Reset Crons"]: { rich_text: resetCronsText } = { rich_text: undefined },
       ["Duration (Minutes)"]: { number } = { number: undefined },
-      ["Categories"]: { relation: categoryRelations } = { relation: undefined },
-      ["Tags"]: { multi_select } = { multi_select: undefined },
       ["Related Active Tasks"]: { relation: activeTaskRelations } = { relation: undefined },
     },
   } = task;
 
-  const categories = categoryRelations
-    ? categoryRelations.map((relation: any) => relation.id).sort()
-    : undefined;
   const activeTasks = activeTaskRelations
     ? activeTaskRelations.map((relation: any) => relation.id).sort()
     : undefined;
@@ -112,8 +107,6 @@ export const extractMainTaskProperties = (task: any): MainTaskProperties => {
     recurrenceEnd: end ? new Date(end) : undefined,
     occurrenceCrons: occurrenceCrons.length > 0 ? occurrenceCrons : undefined,
     resetCrons: resetCrons.length > 0 ? resetCrons : undefined,
-    categories,
     duration: number,
-    tags: multi_select?.map((tag: any) => tag.name),
   };
 };

@@ -134,11 +134,7 @@ export const extractActiveTaskProperties = (task: any): ActiveTaskProperties => 
           end: undefined,
         },
       },
-      ["Status"]: {
-        select: { name: status },
-      },
       ["Associated Task"]: { relation },
-      ["Tags"]: { multi_select } = { multi_select: undefined },
     },
   } = task;
 
@@ -146,9 +142,7 @@ export const extractActiveTaskProperties = (task: any): ActiveTaskProperties => 
     id: task_id,
     name,
     mainTask: relation[0].id,
-    status,
     time: start ? start.includes("T") : false,
-    tags: multi_select?.map((tag: any) => tag.name),
     start,
     end,
   };
@@ -172,15 +166,3 @@ export const compareDates = (
 
   return taskStart === otherStart && taskEnd === otherEnd;
 };
-
-/**
- * Compares the tags in two "active tasks".
- *
- * @param {Pick<ActiveTaskProperties, "tags">} task - An "active task".
- * @param {Pick<ActiveTaskProperties, "tags">} other - Another "active task" to compare against.
- * @returns {boolean} - True if the tags are exactly the same, false otherwise.
- */
-export const compareTags = (
-  task: Pick<ActiveTaskProperties, "tags">,
-  other: Pick<ActiveTaskProperties, "tags">
-): boolean => task.tags?.sort().toString() === other.tags?.sort().toString();
