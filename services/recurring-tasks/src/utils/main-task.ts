@@ -74,7 +74,6 @@ export const convertMainTaskToActiveTasks = (
  * @returns {MainTaskProperties} - An object containing the properties of the "main task".
  */
 export const extractMainTaskProperties = (task: any): MainTaskProperties => {
-  console.log(task);
   const {
     id: task_id,
     properties: {

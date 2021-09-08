@@ -72,22 +72,18 @@ const trail2 = (n: number) => ("00" + n).slice(-3);
  * @param date
  * @param offset
  */
-export const getISOString = (date: Date, offset: string): string => {
-  console.log(offset);
-  return (
-    date.getFullYear() +
-    "-" +
-    trail(date.getMonth() + 1) +
-    "-" +
-    trail(date.getDate()) +
-    "T" +
-    trail(date.getHours()) +
-    ":" +
-    trail(date.getMinutes()) +
-    ":" +
-    trail(date.getSeconds()) +
-    "." +
-    trail2(date.getMilliseconds()) +
-    offset
-  );
-};
+export const getISOString = (date: Date, offset: string): string =>
+  date.getFullYear() +
+  "-" +
+  trail(date.getMonth() + 1) +
+  "-" +
+  trail(date.getDate()) +
+  "T" +
+  trail(date.getHours()) +
+  ":" +
+  trail(date.getMinutes()) +
+  ":" +
+  trail(date.getSeconds()) +
+  "." +
+  trail2(date.getMilliseconds()) +
+  offset;
