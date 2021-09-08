@@ -1,5 +1,8 @@
+import { PageIconInput } from "@notionhq/client/build/src/api-endpoints";
+
 import { ActiveTaskProperties, CreateActiveTaskProperties } from "../types";
 
+import { getISOString } from "./cron";
 import { createDatabasePage, updateDatabasePage } from "./notion";
 
 /**
@@ -8,13 +11,15 @@ import { createDatabasePage, updateDatabasePage } from "./notion";
  *
  * @param {string} database - ID of the database to create the page in.
  * @param {any} properties - Notion API compliant object containing all the properties of the page to create.
+ * @param {PageIconInput} icon - Icon data for the Notion page.
  * @returns {Promise<ActiveTaskProperties>} - Properties of the created "active task".
  */
 export const createActiveTask = async (
   database: string,
-  properties: any
+  properties: any,
+  icon?: PageIconInput
 ): Promise<ActiveTaskProperties> => {
-  const response = await createDatabasePage(database, properties);
+  const response = await createDatabasePage(database, properties, icon);
   return extractActiveTaskProperties(response);
 };
 
@@ -24,13 +29,15 @@ export const createActiveTask = async (
  *
  * @param {string} id - Page ID of the "active task".
  * @param {any} properties - Notion API compliant object containing page properties to update.
+ * @param {PageIconInput} icon - Icon data for the Notion page.
  * @returns {Promise<ActiveTaskProperties>} - Properties of the "active task".
  */
 export const updateActiveTask = async (
   id: string,
-  properties: any
+  properties: any,
+  icon?: PageIconInput
 ): Promise<ActiveTaskProperties> => {
-  const response = await updateDatabasePage(id, properties);
+  const response = await updateDatabasePage(id, properties, icon);
   return extractActiveTaskProperties(response);
 };
 
@@ -51,17 +58,20 @@ export const buildActiveTaskProperties = ({
   mainTask,
   name,
   time,
+  timezoneOffset,
   start,
   end,
 }: CreateActiveTaskProperties): any => {
   const useTime = time || false;
 
-  const startISOString = start?.toISOString();
+  const startISOString =
+    start && timezoneOffset ? getISOString(start, timezoneOffset) : start?.toISOString();
   const startDate = useTime
     ? startISOString
     : startISOString?.slice(0, Math.max(0, startISOString.indexOf("T")));
 
-  const endISOString = end?.toISOString();
+  const endISOString =
+    end && timezoneOffset ? getISOString(end, timezoneOffset) : end?.toISOString();
   const endDate = useTime
     ? endISOString
     : endISOString?.slice(0, Math.max(0, endISOString.indexOf("T")));
@@ -122,12 +132,7 @@ export const extractActiveTaskProperties = (task: any): ActiveTaskProperties => 
           },
         ],
       },
-      ["When"]: { date: { start, end } } = {
-        date: {
-          start: undefined,
-          end: undefined,
-        },
-      },
+      ["When"]: { date },
       ["Associated Task"]: { relation },
     },
   } = task;
@@ -136,9 +141,9 @@ export const extractActiveTaskProperties = (task: any): ActiveTaskProperties => 
     id: task_id,
     name,
     mainTask: relation[0].id,
-    time: start ? start.includes("T") : false,
-    start,
-    end,
+    time: date?.start ? date.start.includes("T") : false,
+    start: date?.start,
+    end: date?.end,
   };
 };
 

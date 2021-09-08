@@ -56,3 +56,38 @@ export const getCrons = (text: string): string[] => {
   const unvalidatedCrons = text.split("\n").map((cron: string) => cron.trim());
   return unvalidatedCrons.filter((cron: string) => validateCron(cron));
 };
+
+/**
+ * @param n
+ */
+const trail = (n: number) => ("0" + n).slice(-2);
+/**
+ * @param n
+ */
+const trail2 = (n: number) => ("00" + n).slice(-3);
+
+/**
+ * Gets an ISO-8601 compliant string that also contains the timezone offset.
+ *
+ * @param date
+ * @param offset
+ */
+export const getISOString = (date: Date, offset: string): string => {
+  console.log(offset);
+  return (
+    date.getFullYear() +
+    "-" +
+    trail(date.getMonth() + 1) +
+    "-" +
+    trail(date.getDate()) +
+    "T" +
+    trail(date.getHours()) +
+    ":" +
+    trail(date.getMinutes()) +
+    ":" +
+    trail(date.getSeconds()) +
+    "." +
+    trail2(date.getMilliseconds()) +
+    offset
+  );
+};

@@ -7,6 +7,7 @@ export interface ActiveTaskProperties {
   name: string;
   mainTask: string;
   time: boolean;
+  timezoneOffset?: string;
   start?: Date;
   end?: Date;
 }
@@ -15,6 +16,7 @@ export interface MainTaskProperties {
   id: string;
   name: string;
   time: boolean;
+  timezoneOffset?: string;
   activeTasks: string[];
   recurrenceStart?: Date;
   recurrenceEnd?: Date;

@@ -16,7 +16,16 @@ import { getCrons, getOccurrences } from "./cron";
 export const convertMainTaskToActiveTasks = (
   properties: MainTaskProperties
 ): CreateActiveTaskProperties[] => {
-  const { id, name, time, recurrenceStart, recurrenceEnd, occurrenceCrons, duration } = properties;
+  const {
+    id,
+    name,
+    time,
+    timezoneOffset,
+    recurrenceStart,
+    recurrenceEnd,
+    occurrenceCrons,
+    duration,
+  } = properties;
 
   if (recurrenceStart) {
     if (occurrenceCrons) {
@@ -30,6 +39,7 @@ export const convertMainTaskToActiveTasks = (
         mainTask: id,
         name,
         time: true,
+        timezoneOffset,
         start: occurrence,
         end: duration ? new Date(occurrence.getTime() + duration * 60_000) : undefined,
       }));
@@ -40,6 +50,7 @@ export const convertMainTaskToActiveTasks = (
         mainTask: id,
         name,
         time,
+        timezoneOffset,
         start: recurrenceStart,
         end:
           recurrenceEnd ||
@@ -52,7 +63,7 @@ export const convertMainTaskToActiveTasks = (
     ];
   }
 
-  return [{ mainTask: id, name, time }];
+  return [{ mainTask: id, name, time, timezoneOffset }];
 };
 
 /**
@@ -63,6 +74,7 @@ export const convertMainTaskToActiveTasks = (
  * @returns {MainTaskProperties} - An object containing the properties of the "main task".
  */
 export const extractMainTaskProperties = (task: any): MainTaskProperties => {
+  console.log(task);
   const {
     id: task_id,
     properties: {
@@ -73,12 +85,7 @@ export const extractMainTaskProperties = (task: any): MainTaskProperties => {
           },
         ],
       } = { title: [{ text: { content: undefined } }] },
-      ["Recurrence Period"]: { date: { start, end } } = {
-        date: {
-          start: undefined,
-          end: undefined,
-        },
-      },
+      ["Recurrence Period"]: { date },
       ["Occurrence Crons"]: { rich_text: occurrenceCronsText } = { rich_text: undefined },
       ["Reset Crons"]: { rich_text: resetCronsText } = { rich_text: undefined },
       ["Duration (Minutes)"]: { number } = { number: undefined },
@@ -98,13 +105,20 @@ export const extractMainTaskProperties = (task: any): MainTaskProperties => {
     getCrons(textItem.plain_text)
   );
 
+  const timezoneOffset = date?.start?.includes("T")
+    ? date?.start?.includes("+")
+      ? date?.start?.slice(date?.start?.lastIndexOf("+"))
+      : date?.start?.slice(date?.start?.lastIndexOf("-"))
+    : undefined;
+
   return {
     id: task_id,
     name,
     activeTasks,
-    time: start ? start.includes("T") : false,
-    recurrenceStart: start ? new Date(start) : undefined,
-    recurrenceEnd: end ? new Date(end) : undefined,
+    time: date?.start ? date.start.includes("T") : false,
+    timezoneOffset,
+    recurrenceStart: date?.start ? new Date(date.start) : undefined,
+    recurrenceEnd: date?.end ? new Date(date.end) : undefined,
     occurrenceCrons: occurrenceCrons.length > 0 ? occurrenceCrons : undefined,
     resetCrons: resetCrons.length > 0 ? resetCrons : undefined,
     duration: number,

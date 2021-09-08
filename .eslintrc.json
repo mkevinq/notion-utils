@@ -30,6 +30,7 @@
         "allowSeparatedGroups": true
       }
     ],
+    "unicorn/no-array-reduce": "off",
     "sonarjs/cognitive-complexity": "warn",
     "import/no-unresolved": "warn",
     "import/order": ["error", { "newlines-between": "always", "alphabetize": { "order": "asc" } }],

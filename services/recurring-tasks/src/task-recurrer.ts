@@ -184,13 +184,16 @@ export default class TaskRecurrer {
         deleteDatabasePage(existing.id);
       }
 
+      const icon =
+        task.icon?.type === "emoji" || task.icon?.type === "external" ? task.icon : undefined;
+
       for (const activeTask of tasksToCreate) {
         const taskToCreate = buildActiveTaskProperties(activeTask);
-        createActiveTask(this.activeDatabase, taskToCreate);
+        createActiveTask(this.activeDatabase, taskToCreate, icon);
       }
 
       for (const { id, properties } of tasksToUpdate) {
-        updateActiveTask(id, properties);
+        updateActiveTask(id, properties, icon);
       }
 
       this.existingMainTasks[task.id] = extractMainTaskProperties(task);
