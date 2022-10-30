@@ -1,5 +1,0 @@
-# Node modules ignored already
-**/dist/*
-**/coverage/*
-**/public/*
-**/*.d.ts

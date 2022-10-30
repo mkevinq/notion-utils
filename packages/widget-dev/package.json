@@ -1,0 +1,47 @@
+{
+  "name": "@notion-utils/widget-dev",
+  "version": "1.0.0",
+  "description": "development scripts for creating notion widgets in react",
+  "main": "index.js",
+  "repository": "https://github.com/mkevinq/notion-utils.git",
+  "author": "Marc Kevin Quijalvo",
+  "license": "GPL-3.0-only",
+  "bin": {
+    "widget-build": "./bin/widget-build.js",
+    "widget-start": "./bin/widget-start.js"
+  },
+  "dependencies": {
+    "@babel/core": "^7.18.9",
+    "@babel/preset-env": "^7.18.9",
+    "@babel/preset-react": "^7.18.6",
+    "@babel/preset-typescript": "^7.18.6",
+    "@notion-utils/eslint-config-notion-widget": "*",
+    "@typescript-eslint/eslint-plugin": "^5.30.7",
+    "@typescript-eslint/parser": "^5.30.7",
+    "autoprefixer": "^10.4.7",
+    "babel-loader": "^8.2.5",
+    "css-loader": "^6.7.1",
+    "dotenv": "^16.0.3",
+    "eslint-webpack-plugin": "^3.2.0",
+    "fork-ts-checker-webpack-plugin": "^7.2.13",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.6.1",
+    "postcss": "^8.4.14",
+    "postcss-loader": "^7.0.1",
+    "prettier": "^2.7.1",
+    "style-loader": "^3.3.1",
+    "tailwindcss": "^3.1.6",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.9.3"
+  },
+  "peerDependencies": {
+    "react": ">= 16",
+    "typescript": "^4.7.4"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  }
+}

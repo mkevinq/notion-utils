@@ -119,3 +119,8 @@ dist
 .env.test.local
 .env.production.local
 
+#
+# workspace-specific ignores
+#
+
+services/playground/src

@@ -70,7 +70,7 @@
   },
   "references": [
     {
-      "path": "services/recurring-tasks"
+      "path": "services/widget-recurring-tasks"
     }
   ],
   "exclude": ["node_modules", "dist", "*.d.ts"]
